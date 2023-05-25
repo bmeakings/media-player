@@ -1,0 +1,22 @@
+{
+	"_dir": "ltr",
+	"artist": "アーティスト",
+	"fade_volume": "一時停止時にボリュームをフェード",
+	"language": "言語",
+	"loop": "ループ",
+	"mute": "ミュート",
+	"next_track": "次のトラック",
+	"open_file": "ファイルを開く",
+	"play_pause": "再生/一時停止",
+	"play_on_add": "プレイリストにファイルを追加してから再生",
+	"playlist_add": "プレイリストに追加する",
+	"playlist_clear": "プレイリストをクリア",
+	"playlist_shuffle": "シャッフルプレイリスト",
+	"prev_track": "前のトラック",
+	"settings": "設定",
+	"stop": "やめる",
+	"title": "題名",
+	"track_delay": "プレイリストのトラック間の遅延",
+	"volume": "ボリューム",
+	"END": ""
+}

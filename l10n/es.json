@@ -1,0 +1,22 @@
+{
+	"_dir": "ltr",
+	"artist": "Artista",
+	"fade_volume": "Atenuar el volumen en pausa",
+	"language": "Idioma",
+	"loop": "Lazo",
+	"mute": "Mudo",
+	"next_track": "Siguiente pista",
+	"open_file": "Abrir documento",
+	"play_pause": "Reproducir / Pausar",
+	"play_on_add": "Reproducir después de agregar archivos a la lista de reproducción",
+	"playlist_add": "Agregar a la lista de reproducción",
+	"playlist_clear": "Lista de reproducción clara",
+	"playlist_shuffle": "Lista de reproducción aleatoria",
+	"prev_track": "Pista anterior",
+	"settings": "Configuraciones",
+	"stop": "Detener",
+	"title": "Título",
+	"track_delay": "Retraso entre pistas en la lista de reproducción",
+	"volume": "Volumen",
+	"END": ""
+}

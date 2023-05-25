@@ -1,0 +1,19 @@
+{
+  "name": "media-player",
+  "author": "Ben Meakings",
+  "description": "",
+  "license": "",
+  "repository": "",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {},
+  "dependencies": {},
+  "build": {
+    "appId": "com.github.bmeakings.mediaplayer",
+    "productName": "media-player",
+    "copyright": "Copyright © Ben Meakings"
+  }
+}

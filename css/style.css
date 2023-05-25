@@ -1,0 +1,163 @@
+@charset "UTF-8";
+
+html, body {
+	user-select: none;
+}
+body {
+	background-color: #000;
+}
+md-slider .md-thumb:after {
+	background-color: #fff !important;
+	/* left: 0px; */
+}
+.md-slider-content > .md-track-container > .md-track {
+	background-color: #555;
+}
+.md-slider-content > .md-track-container > .md-track-fill {
+	background-color: #fff !important;
+}
+#playerPage md-card {
+	background-color: #ddd;
+}
+.md-errors-spacer {
+	display: none;
+}
+main.flex {
+	overflow-y: auto;
+}
+
+.clearfix { clear: both; }
+.alignL { text-align: left; }
+.alignC { text-align: center; }
+.alignR { text-align: right; }
+.floatL { float: left; }
+.floatR { float: right; }
+
+#videoWrapper {
+	display: flex;
+	position: absolute;
+	z-index: 10;
+	top: 0px;
+	bottom: 0px;
+	width: 100%;
+}
+#startupArea {
+	position: absolute;
+	z-index: 20;
+	top: 30%;
+	left: calc(50% - 100px);
+	width: 200px;
+	font-size: 16px;
+	text-align: center;
+	padding: 10px;
+	color: #000;
+	cursor: pointer;
+	border: 2px dashed #000;
+	background-color: #fff;
+}
+#startupArea:hover {
+	background-color: #ccc;
+}
+#startupArea > img {
+	width: 64px;
+	margin: 10px;
+	filter: invert(1);
+}
+#statusIconArea {
+	position: absolute;
+	top: calc(50% - 32px);
+	width: 100%;
+	text-align: center;
+}
+#statusIconArea > img {
+	height: 64px;
+}
+#videoPlayer {
+	width: 100%;
+}
+#videoControls {
+	display: block;
+	position: absolute;
+	z-index: 30;
+	bottom: 0px;
+	width: 100%;
+	padding-top: 10px;
+	text-align: center;
+	background-color: #000;
+}
+#playbackSlider {
+	display: inline-block;
+	width: calc(100% - 180px);
+	height: 38px;
+	margin-top: -16px;
+}
+#timePlayed, #timeTotal {
+	display: inline-block;
+	width: 80px;
+	color: #fff;
+}
+#timePlayed {
+	float: left;
+}
+#timeTotal {
+	float: right;
+}
+#controlsArea button {
+	margin: 0px;
+}
+.sliderArea {
+	display: inline-block;
+}
+.verticalSlider {
+	position: absolute;
+	bottom: 40px;
+	width: 40px;
+	margin: 0px;
+	background-color: #000;
+}
+.verticalSlider > .md-slider-wrapper {
+	width: 100%;
+}
+
+#openFileForm {
+	display: none;
+}
+.volumeMuted {
+	background-color: #d00 !important;
+}
+#volumeMeter {
+	display: inline-block;
+	width: 10px;
+	height: 100%;
+}
+#volumeMeter > div {
+	background-color: #333;
+}
+
+#settingsArea {
+	position: absolute;
+	top: 48px;
+	bottom: 0px;
+	width: 100%;
+}
+#settingsArea > md-content {
+	height: 100%;
+}
+#settingsArea .layout-row {
+	margin-bottom: 10px;
+}
+#settingsArea md-input-container {
+	margin-top: 0px;
+}
+#settingsArea md-input-container:last-child {
+	margin-bottom: 0px;
+}
+#settingsArea md-input-container > span {
+	vertical-align: sub;
+}
+#settingsArea md-input-container > md-select {
+	float: right;
+}
+#settingsArea md-input-container > input {
+	float: right;
+}

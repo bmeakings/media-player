@@ -1,0 +1,20 @@
+{
+	"_dir": "ltr",
+	"language": "Language",
+	"next_item": "Next media in playlist",
+	"prev_item": "Previous media in playlist",
+	"skip_next": "Go forward 10 seconds",
+	"skip_prev": "Go back 10 seconds",
+	"open_file": "Remove all media and open new files",
+	"play_pause": "Play / Pause",
+	"stop": "Stop and rewind",
+	"loop": "Repeat media. Click again to loop infinite times",
+	"volume": "Volume",
+	"add_file": "Add file to playlist",
+	"settings": "Settings",
+	"resize_on_play": "Resize window on play",
+	"centre_on_play": "Centre window on play",
+	"exit_on_finish": "Exit when video has finished",
+	"audio_visualiser": "Show visualiser for audio",
+	"END": ""
+}

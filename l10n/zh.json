@@ -1,0 +1,22 @@
+{
+	"_dir": "ltr",
+	"artist": "艺术家",
+	"fade_volume": "暂停时淡入音量",
+	"language": "语言",
+	"loop": "循环",
+	"mute": "静音",
+	"next_track": "下一曲",
+	"open_file": "打开文件",
+	"play_pause": "播放/暂停",
+	"play_on_add": "将文件添加到播放列表后播放",
+	"playlist_add": "添加到播放列表",
+	"playlist_clear": "清除播放清单",
+	"playlist_shuffle": "随机播放列表",
+	"prev_track": "上一个曲目",
+	"settings": "设定值",
+	"stop": "停止",
+	"title": "标题",
+	"track_delay": "播放列表中曲目之间的延迟",
+	"volume": "卷",
+	"END": ""
+}

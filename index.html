@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html ng-app="MediaPlayer">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="cache-control" content="no-store">
+		<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' data: filesystem: about: blob: ws: wss:">
+		<title>MediaPlayer</title>
+		<link rel="stylesheet" type="text/css" href="./css/font-roboto.css">
+		<link rel="stylesheet" type="text/css" href="./css/angular-material.css">
+		<link rel="stylesheet" type="text/css" href="./css/style.css">
+		<script type="application/javascript" src="./js/srt2vtt.js"></script>
+		<script type="application/javascript" src="./angular/angular.js"></script>
+		<script type="application/javascript" src="./angular/angular-animate.js"></script>
+		<script type="application/javascript" src="./angular/angular-aria.js"></script>
+		<script type="application/javascript" src="./angular/angular-messages.js"></script>
+		<script type="application/javascript" src="./angular/angular-route.js"></script>
+		<script type="application/javascript" src="./angular/angular-material.js"></script>
+		<script type="application/javascript" src="./angular/app.js"></script>
+		<script type="application/javascript" src="./angular/directives.js"></script>
+		<script type="application/javascript" src="./angular/services.js"></script>
+		<script type="application/javascript" src="./angular/filters.js"></script>
+		<script type="application/javascript" src="./controllers/player.js"></script>
+		<script type="application/javascript" src="./controllers/settings.js"></script>
+	</head>
+	<body ng-controller="MainCtrl" dir="{{ langStrings._dir }}" ng-cloak>
+		<div layout="column" layout-fill>
+			<div ng-hide="settingsOpen" ng-include="'templates/player.html'"></div>
+			<div ng-show="settingsOpen" ng-include="'templates/settings.html'"></div>
+		</div>
+	</body>
+</html>

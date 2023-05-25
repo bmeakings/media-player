@@ -1,0 +1,22 @@
+{
+	"_dir": "ltr",
+	"artist": "Artis",
+	"fade_volume": "Kelam pudar pada jeda",
+	"language": "Bahasa",
+	"loop": "Gelung",
+	"mute": "Bisu",
+	"next_track": "Trek Seterusnya",
+	"open_file": "Buka fail",
+	"play_pause": "Main / Jeda",
+	"play_on_add": "Mainkan setelah menambahkan fail ke senarai main",
+	"playlist_add": "Tambahkan ke Senarai Main",
+	"playlist_clear": "Kosongkan Senarai Main",
+	"playlist_shuffle": "Shuffle Senarai Main",
+	"prev_track": "Trek Sebelumnya",
+	"settings": "Tetapan",
+	"stop": "Berhenti",
+	"title": "Tajuk",
+	"track_delay": "Kelewatan antara trek dalam senarai main",
+	"volume": "Isipadu",
+	"END": ""
+}

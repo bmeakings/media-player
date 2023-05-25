@@ -1,0 +1,22 @@
+{
+	"_dir": "ltr",
+	"artist": "Künstler",
+	"fade_volume": "Lautstärke verblassen bei Pause",
+	"language": "Sprache",
+	"loop": "Schleife",
+	"mute": "Stumm",
+	"next_track": "Nächster Titel",
+	"open_file": "Datei öffnen",
+	"play_pause": "Spiel / Pause",
+	"play_on_add": "Wiedergabe nach dem Hinzufügen von Dateien zur Wiedergabeliste",
+	"playlist_add": "Zur Wiedergabeliste hinzufügen",
+	"playlist_clear": "Wiedergabeliste löschen",
+	"playlist_shuffle": "Shuffle Playlist",
+	"prev_track": "Vorheriges Lied",
+	"settings": "die Einstellungen",
+	"stop": "Halt",
+	"title": "Titel",
+	"track_delay": "Verzögerung zwischen den Titeln in der Wiedergabeliste",
+	"volume": "Volumen",
+	"END": ""
+}
