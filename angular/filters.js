@@ -1,9 +1,10 @@
 'use strict';
-/*
+
 (angular
 	.module(appName)
-	.filter('', function() {
-
+	.filter('trustedHTML', ($sce) => {
+		return (htmlStr) => {
+			return $sce.trustAsHtml(htmlStr);
+		};
 	})
 );
-*/

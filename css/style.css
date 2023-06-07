@@ -5,10 +5,13 @@ html, body {
 }
 body {
 	background-color: #000;
+	overflow: hidden;
+}
+body > div {
+	height: 100%;
 }
 md-slider .md-thumb:after {
 	background-color: #fff !important;
-	/* left: 0px; */
 }
 .md-slider-content > .md-track-container > .md-track {
 	background-color: #555;
@@ -41,36 +44,39 @@ main.flex {
 	bottom: 0px;
 	width: 100%;
 }
-#startupArea {
+.messageArea {
 	position: absolute;
 	z-index: 20;
 	top: 30%;
-	left: calc(50% - 100px);
+	left: calc(50% - 112px);
 	width: 200px;
 	font-size: 16px;
 	text-align: center;
 	padding: 10px;
 	color: #000;
-	cursor: pointer;
 	border: 2px dashed #000;
 	background-color: #fff;
+}
+.messageArea > img {
+	height: 64px;
+	margin: 10px;
+	filter: invert(1);
+}
+#startupArea {
+	cursor: pointer;
 }
 #startupArea:hover {
 	background-color: #ccc;
 }
-#startupArea > img {
-	width: 64px;
-	margin: 10px;
-	filter: invert(1);
-}
 #statusIconArea {
 	position: absolute;
-	top: calc(50% - 32px);
+	top: calc(50% - 10vh);
 	width: 100%;
+	height: 20vh;
 	text-align: center;
 }
 #statusIconArea > img {
-	height: 64px;
+	height: 100%;
 }
 #videoPlayer {
 	width: 100%;
@@ -103,22 +109,52 @@ main.flex {
 	float: right;
 }
 #controlsArea button {
+	width: 32px;
+	height: 32px;
 	margin: 0px;
+	padding: 0px;
+	border-radius: 0px;
+}
+#controlsArea button:hover {
+	background-color: #333;
 }
 .sliderArea {
 	display: inline-block;
 }
+.sliderArea:hover {
+	background-color: #333;
+}
 .verticalSlider {
 	position: absolute;
-	bottom: 40px;
-	width: 40px;
+	bottom: 36px;
+	width: 32px;
 	margin: 0px;
-	background-color: #000;
+	background-color: #333;
 }
 .verticalSlider > .md-slider-wrapper {
-	width: 100%;
+	width: 100% !important;
 }
-
+#infoMsgArea {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	color: #fff;
+	font-size: 24px;
+	font-weight: bold;
+}
+#subtitlesArea {
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+	text-align: center;
+	font-size: 3.5vh;
+}
+#subtitlesArea > div {
+	display: inline-block;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: #fff;
+	padding: 2px 5px;
+}
 #openFileForm {
 	display: none;
 }
@@ -133,31 +169,8 @@ main.flex {
 #volumeMeter > div {
 	background-color: #333;
 }
-
-#settingsArea {
-	position: absolute;
-	top: 48px;
-	bottom: 0px;
-	width: 100%;
-}
-#settingsArea > md-content {
-	height: 100%;
-}
-#settingsArea .layout-row {
-	margin-bottom: 10px;
-}
-#settingsArea md-input-container {
-	margin-top: 0px;
-}
-#settingsArea md-input-container:last-child {
-	margin-bottom: 0px;
-}
-#settingsArea md-input-container > span {
-	vertical-align: sub;
-}
-#settingsArea md-input-container > md-select {
-	float: right;
-}
-#settingsArea md-input-container > input {
-	float: right;
+#settingsCard {
+	width: 400px;
+	margin-left: auto;
+	margin-right: auto;
 }

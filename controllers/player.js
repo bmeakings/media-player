@@ -5,21 +5,29 @@
 	.controller('PlayerCtrl', ($scope, $timeout) => {
 		const savedVolume = localStorage.getItem('volume');
 		const videoObj = document.getElementById('videoPlayer');
+		const volumeArea = document.getElementById('volumeArea');
+		const speedArea = document.getElementById('speedArea');
 
+		let ctrlKeyDown = false;
+		let shiftKeyDown = false;
+		let altKeyDown = false;
+		let mouseMoved = false;
 		let updateTimer = null;
 		let seekerDelay = null;
 		// let playOpenedFile = true;
 		let volBeforeMute = 0.0;
 		let showControlTimer = null;
 		let showVolumeTimer = null;
+		let showSpeedTimer = null;
+		let showInfoTimer = null;
 		let fullScreen = false;
 		let currFileType = '';
 		let currFilePath = '';
 		let currFileName = '';
 		let appendPlaylist = false;
+		let currSubsData = [];
 
 		$scope.settings = {};
-		// $scope.showControls = false;
 		$scope.showControls = true;
 		$scope.currVolume = parseFloat(savedVolume) || 0.5;
 		$scope.settingsOpen = false;
@@ -27,13 +35,18 @@
 		$scope.volumeImg = '';
 		$scope.volumePcnt = 0;
 		$scope.volumeSlider = {'value': 0.0};
-		$scope.speedSlider = {'value': 0.0};
+		$scope.speedSlider = {'value': 1.0};
 		$scope.openFiles = '';
 		$scope.currPlayIdx = 0;
 		$scope.playlist = [];
 		$scope.statusIcon = '';
 		$scope.appStartup = true;
 		$scope.showVolSlider = false;
+		$scope.showSpeedSlider = false;
+		$scope.errorMessage = '';
+		$scope.infoMessage = '';
+		$scope.currSubtitle = '';
+		$scope.showSubtitles = false;
 
 		$scope.playback = {
 			'title': '',
@@ -42,7 +55,7 @@
 			'duration': 0.0,
 			'timePlayed': '00:00:00',
 			'timeTotal': '00:00:00',
-			'loop': false,
+			'repeat': false,
 		};
 
 		function setPlaybackStatus(status) {
@@ -68,11 +81,6 @@
 			const fileName = file.name;
 			const filePath = 'file://' + file.path.replaceAll('\\', '/');
 			const fileType = file.type;
-			const vidTracks = videoObj.getElementsByTagName('track');
-
-			// remove old subtitle tracks
-			for (const i of vidTracks)
-				videoObj.removeChild(i);
 
 			$scope.currPlayIdx = index;
 
@@ -81,70 +89,155 @@
 			currFileName = fileName;
 			videoObj.src = filePath;
 
-			console.log('vid tracks');
-			console.log(vidTracks);
-
 			setPlaybackStatus(true);
 			updatePlaybackInfo();
 			// spectrumAnalyser();
 			$scope.togglePlayback(true);
 		}
 
-		function loadSubtitles() {
+		function getSubtitles() {
 			const subsPath = currFilePath.split('/').slice(0, -1).join('/');
-			const subsFile = currFileName.substring(0, currFileName.lastIndexOf('.')) + '.srt';
+			const subsFile = currFileName.substring(0, currFileName.lastIndexOf('.'));
 
-			(fetch(subsPath + '/' + subsFile)
+			currSubsData = [];
+
+			getSubtitlesVTT(subsPath + '/' + subsFile);
+		}
+
+		// try to load vtt subtitles
+		function getSubtitlesVTT(filePath) {
+			(fetch(filePath + '.vtt')
 				.then((response) => {
 					response.text().then((data) => {
-						const vttSubs = srt2vtt.convert(data);
-						const subsURI = 'data:text/vtt;base64,' + btoa(unescape(encodeURIComponent(vttSubs)));
-						const track = document.createElement('track');
-
-						track.kind = 'subtitles';
-						track.label = 'English';
-						track.srclang = 'en';
-						track.src = subsURI;
-						track.addEventListener('load', function() {
-							this.mode = 'showing';
-						});
-
-						videoObj.appendChild(track);
+						loadSubtitles(data);
 					});
 				})
 				.catch(() => {
-					console.log('no subtitles found');
+					console.log('no vtt subtitles found, trying srt...');
+					getSubtitlesSRT(filePath);
 				})
 			);
 		}
 
-		function formatTime(input) {
+		// try to load srt subtitles and convert to vtt
+		function getSubtitlesSRT(filePath) {
+			(fetch(filePath + '.srt')
+				.then((response) => {
+					response.text().then((data) => {
+						const vttSubs = srt2vtt.convert(data);
+
+						loadSubtitles(vttSubs);
+					});
+				})
+				.catch(() => {
+					console.log('no srt subtitles found');
+				})
+			);
+		}
+
+		function loadSubtitles(data) {
+			const subsArr = data.split('\n\n');
+
+			subsArr.shift();
+
+			for (const i of subsArr) {
+				if (!i)
+					continue;
+
+				const sub = i.split('\n');
+				const subTimes = sub[1].split(' --> ');
+				const subTime1 = convertTime(subTimes[0]);
+				const subTime2 = convertTime(subTimes[1]);
+				const subRows = sub.slice(2);
+
+				let subText = '';
+
+				for (const j of subRows)
+					subText += '<div>' + j + '</div><br>';
+
+				currSubsData.push({
+					'start': subTime1,
+					'end': subTime2,
+					'text': subText,
+				});
+			}
+
+			if ($scope.settings.auto_show_subs)
+				$scope.toggleSubtitles(true);
+		}
+
+		function updateSubtitles(time) {
+			for (const i of currSubsData) {
+				if (time >= i.start && time < i.end) {
+					$scope.currSubtitle = i.text;
+					break;
+				}
+				else {
+					$scope.currSubtitle = '';
+				}
+			}
+		}
+
+		function formatTime(input, millis) {
 			const hour = Math.floor(input / 3600);
 			const mins = Math.floor((input % 3600) / 60);
 			const secs = Math.floor(input % 60);
+			const mils = parseInt(input.toFixed(3).split('.')[1]);
 
 			let output = '';
-				output += String(hour || 0).padStart(2, '0');
-				output += ':';
-				output += String(mins || 0).padStart(2, '0');
-				output += ':';
-				output += String(secs || 0).padStart(2, '0');
+
+			output += String(hour || 0).padStart(2, '0');
+			output += ':';
+			output += String(mins || 0).padStart(2, '0');
+			output += ':';
+			output += String(secs || 0).padStart(2, '0');
+
+			if (millis)
+				output += '.' + String(mils).padStart(3, '0');
 
 			return output;
 		}
 
-		function updatePlaybackInfo() {
-			$timeout(() => {
-				const played = videoObj.currentTime;
-				const total = videoObj.duration;
+		function convertTime(input) {
+			const time = input.split(':');
+			const mils = parseInt(input.split('.')[1]);
 
-				$scope.playback.duration = total;
-				$scope.playback.time = played;
-				$scope.playback.timeTotal = formatTime(total);
-				$scope.playback.timePlayed = formatTime(played);
-			});
+			let output = 0.0;
 
-			updateTimer = setTimeout(updatePlaybackInfo, 500);
+			output += parseInt(time[0]) * 3600;
+			output += parseInt(time[1]) * 60;
+			output += parseInt(time[2]);
+			output += parseFloat('0.' + mils);
+
+			return output;
+		}
+
+		function updatePlaybackInfo(force) {
+			if ($scope.playback.playing || force) {
+				$timeout(() => {
+					const played = videoObj.currentTime;
+					const total = videoObj.duration;
+
+					$scope.playback.duration = total;
+					$scope.playback.time = played;
+					$scope.playback.timeTotal = formatTime(total);
+					$scope.playback.timePlayed = formatTime(played);
+
+					updateSubtitles(played);
+				});
+			}
+
+			updateTimer = setTimeout(updatePlaybackInfo, 200);
+		}
+
+		function showInfoMessage(infoMsg) {
+			$timeout.cancel(showInfoTimer);
+
+			$scope.infoMessage = infoMsg;
+
+			showInfoTimer = $timeout(() => {
+				$scope.infoMessage = '';
+			}, 500);
 		}
 
 		function setVolume(newVolume) {
@@ -166,9 +259,67 @@
 				$scope.volumeImg = 'volume-' + volLvlImg;
 				$scope.volumePcnt = (newVolume * 100);
 				$scope.volumeSlider.value = newVolume;
+
+				showInfoMessage($scope.$parent.langStrings.volume + ': ' + $scope.volumePcnt + '%');
 			});
 
 			localStorage.setItem('volume', newVolume);
+		}
+
+		function incrementVolume(action) {
+			let oldVolume = videoObj.volume;
+			let newVolume = oldVolume;
+
+			switch (action) {
+				case '-': {
+					if (oldVolume > 0.0)
+						newVolume = parseFloat((oldVolume - 0.1).toFixed(1));
+
+					break;
+				}
+				case '+': {
+					if (oldVolume < 1.0)
+						newVolume = parseFloat((oldVolume + 0.1).toFixed(1));
+
+					break;
+				}
+			}
+
+			if (newVolume != oldVolume)
+				setVolume(newVolume);
+		}
+
+		function setSpeed(newSpeed) {
+			videoObj.playbackRate = newSpeed;
+
+			$timeout(() => {
+				$scope.speedSlider.value = newSpeed;
+
+				showInfoMessage($scope.$parent.langStrings.play_speed + ': ' + newSpeed.toFixed(2));
+			});
+		}
+
+		function incrementSpeed(action) {
+			let oldSpeed = videoObj.playbackRate;
+			let newSpeed = oldSpeed;
+
+			switch (action) {
+				case '-': {
+					if (oldSpeed > 0.1)
+						newSpeed = parseFloat((oldSpeed - 0.1).toFixed(2));
+
+					break;
+				}
+				case '+': {
+					if (oldSpeed < 4.0)
+						newSpeed = parseFloat((oldSpeed + 0.1).toFixed(2));
+
+					break;
+				}
+			}
+
+			if (newSpeed != oldSpeed)
+				setSpeed(newSpeed);
 		}
 
 		function showStatusIcon(icon, persist) {
@@ -181,18 +332,44 @@
 			}
 		}
 
+		function setVideoTime(amount) {
+			videoObj.currentTime = (videoObj.currentTime + amount);
+
+			updatePlaybackInfo(true);
+			showInfoMessage('Jump ' + ((amount > 0) ? '+' : '') + amount + 's');
+		}
+
+		$scope.jumpVideoTime = (action) => {
+			switch (action) {
+				case 'B': { setVideoTime(-1 * $scope.settings.jump_time_amount); break; }
+				case 'F': { setVideoTime($scope.settings.jump_time_amount); break; }
+			}
+		};
+
 		$scope.seekerChanged = () => {
-			$scope.togglePlayback(false, true);
+			// $scope.togglePlayback(false, true);
 			clearTimeout(updateTimer);
 			clearTimeout(seekerDelay);
-			setPlaybackStatus(false);
+			// setPlaybackStatus(false);
 
 			videoObj.currentTime = $scope.playback.time;
 
 			seekerDelay = setTimeout(() => {
-				$scope.togglePlayback(true, true);
+				// $scope.togglePlayback(true, true);
 				updatePlaybackInfo();
 			}, 200);
+		};
+
+		$scope.volumeChanged = () => {
+			setVolume($scope.volumeSlider.value);
+		};
+
+		$scope.speedChanged = () => {
+			setSpeed($scope.speedSlider.value);
+		};
+
+		$scope.normalSpeed = () => {
+			setSpeed(1.0);
 		};
 
 		$scope.openPlayPause = () => {
@@ -235,19 +412,34 @@
 
 		$scope.togglePlayback = (play, seek) => {
 			if (play || !$scope.playback.playing) {
-				videoObj.play();
+				$scope.errorMessage = '';
 
-				$timeout(() => {
-					if (currFileType.includes('audio/')) {
-						if (!$scope.settings.audio_visualiser)
-							showStatusIcon('music', true);
-					}
-					else {
-						showStatusIcon('play');
-					}
+				(videoObj.play()
+					.then(() => {
+						$timeout(() => {
+							if (currFileType.includes('audio/')) {
+								if (!$scope.settings.audio_visualiser)
+									showStatusIcon('music', true);
+							}
+							else {
+								showStatusIcon('play');
+							}
 
-					setPlaybackStatus(true);
-				});
+							setPlaybackStatus(true);
+						});
+					})
+					.catch((e) => {
+						let errStr = e.toString();
+						let errMsg = $scope.$parent.langStrings.error_noplay;
+
+						if (errStr.includes('no supported source'))
+							errMsg += $scope.$parent.langStrings.error_format;
+						else
+							errMsg += $scope.$parent.langStrings.error_unknown;
+
+						$scope.errorMessage = errMsg;
+					})
+				);
 			}
 			else {
 				videoObj.pause();
@@ -280,6 +472,10 @@
 
 				$scope.stopPlayback();
 				playMedia($scope.currPlayIdx);
+				showInfoMessage('Next video');
+			}
+			else {
+				showInfoMessage('No more videos');
 			}
 		};
 
@@ -289,23 +485,10 @@
 
 				$scope.stopPlayback();
 				playMedia($scope.currPlayIdx);
+				showInfoMessage('Previous video');
 			}
-		};
-
-		$scope.videoSpeed = (action) => {
-			const currSpeed = videoObj.playbackRate;
-
-			if (currSpeed > 0) {
-				switch (action) {
-					case '+': {
-						videoObj.playbackRate = parseFloat((currSpeed + 0.25).toFixed(2));
-						break;
-					}
-					case '-': {
-						videoObj.playbackRate = parseFloat((currSpeed - 0.25).toFixed(2));
-						break;
-					}
-				}
+			else {
+				showInfoMessage('No more videos');
 			}
 		};
 
@@ -320,12 +503,11 @@
 			}
 		};
 
-		$scope.changeVolume = () => {
-			setVolume($scope.volumeSlider.value);
-		};
-
-		$scope.toggleFullScreen = () => {
-			fullScreen = !fullScreen;
+		$scope.toggleFullScreen = (value) => {
+			if (typeof value == 'boolean')
+				fullScreen = value;
+			else
+				fullScreen = !fullScreen;
 
 			window.electronAPI.setFullScreen(fullScreen);
 		};
@@ -334,11 +516,30 @@
 			$scope.playlist.length = 0;
 		};
 
+		$scope.repeatVideo = () => {
+			const loopVideo = !$scope.playback.repeat;
+
+			$scope.playback.repeat = loopVideo;
+
+			videoObj.loop = loopVideo;
+		};
+
+		$scope.toggleSubtitles = (value) => {
+			if (typeof value == 'boolean')
+				$scope.showSubtitles = value;
+			else
+				$scope.showSubtitles = !$scope.showSubtitles;
+		};
+
+		$scope.showInfo = () => {
+			console.log('show info');
+		};
+
 		$scope.$on('settingsChanged', (event, data) => {
 			$scope.settings = data;
 		});
 
-		document.getElementById('volumeArea').addEventListener('mouseover', (event) => {
+		volumeArea.addEventListener('mouseover', () => {
 			$timeout.cancel(showVolumeTimer);
 
 			$timeout(() => {
@@ -346,92 +547,46 @@
 			});
 		});
 
-		document.getElementById('volumeArea').addEventListener('mouseout', (event) => {
+		volumeArea.addEventListener('mouseout', () => {
 			showVolumeTimer = $timeout(() => {
 				$scope.showVolSlider = false;
 			}, 500);
 		});
 
-		document.getElementById('volumeArea').addEventListener('wheel', (event) => {
-			let oldVolume = videoObj.volume;
-			let newVolume = oldVolume;
-
-			if (event.deltaY > 0) {
-				if (oldVolume > 0.0)
-					newVolume = parseFloat((oldVolume - 0.1).toFixed(1));
-			}
-			else {
-				if (oldVolume < 1.0)
-					newVolume = parseFloat((oldVolume + 0.1).toFixed(1));
-			}
-
-			if (newVolume != oldVolume)
-				setVolume(newVolume);
+		volumeArea.addEventListener('wheel', (event) => {
+			if (event.deltaY > 0)
+				incrementVolume('-');
+			else
+				incrementVolume('+');
 		});
 
-		document.addEventListener('drop', (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-
-			addToPlaylist(event.dataTransfer.files)
-		});
-
-		document.addEventListener('dragover', (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-		});
-/*
-		document.addEventListener('mousemove', (event) => {
-			$timeout.cancel(showControlTimer);
+		speedArea.addEventListener('mouseover', () => {
+			$timeout.cancel(showSpeedTimer);
 
 			$timeout(() => {
-				$scope.showControls = true;
+				$scope.showSpeedSlider = true;
 			});
-
-			showControlTimer = $timeout(() => {
-				$scope.showControls = false;
-			}, 5000);
 		});
 
-		document.addEventListener('mouseout', (event) => {
-			showControlTimer = $timeout(() => {
-				$scope.showControls = false;
-			}, 1000);
-		});
-*/
-		document.addEventListener('keyup', (event) => {
-			console.log('key pressed', event.code);
-
-			switch (event.code) {
-				case 'Space': {
-					$scope.togglePlayback();
-					break;
-				}
-				case 'ArrowLeft': {
-					// back 10s
-					break;
-				}
-				case 'ArrowRight': {
-					// fwrd 10s
-					break;
-				}
-				case 'ArrowUp': {
-					// vol up
-					break;
-				}
-				case 'ArrowDown': {
-					// vol down
-					break;
-				}
-			}
+		speedArea.addEventListener('mouseout', () => {
+			showSpeedTimer = $timeout(() => {
+				$scope.showSpeedSlider = false;
+			}, 500);
 		});
 
-		document.getElementById('videoWrapper').addEventListener('click', (event) => {
+		speedArea.addEventListener('wheel', (event) => {
+			if (event.deltaY > 0)
+				incrementSpeed('-');
+			else
+				incrementSpeed('+');
+		});
+
+		document.getElementById('videoWrapper').addEventListener('click', () => {
 			if ($scope.playlist.length > 0)
 				$scope.togglePlayback();
 		});
 
-		document.getElementById('videoWrapper').addEventListener('dblclick', (event) => {
+		document.getElementById('videoWrapper').addEventListener('dblclick', () => {
 			$scope.toggleFullScreen();
 		});
 
@@ -446,12 +601,152 @@
 			if ($scope.settings.centre_on_play)
 				window.electronAPI.centreWindow();
 
-			loadSubtitles();
+			getSubtitles();
 		});
 
 		videoObj.addEventListener('ended', () => {
 			if ($scope.settings.exit_on_finish)
 				window.electronAPI.exitApp();
+		});
+
+		videoObj.addEventListener('wheel', (event) => {
+			if (event.deltaY > 0)
+				incrementVolume('-');
+			else
+				incrementVolume('+');
+		});
+
+		document.addEventListener('drop', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+
+			addToPlaylist(event.dataTransfer.files)
+		});
+
+		document.addEventListener('dragover', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+		});
+
+		document.addEventListener('click', () => {
+			$timeout.cancel(showControlTimer);
+
+			$timeout(() => {
+				$scope.showControls = true;
+			});
+		});
+
+		document.addEventListener('mousemove', () => {
+			$timeout.cancel(showControlTimer);
+
+			$timeout(() => {
+				$scope.showControls = true;
+			});
+
+			if (!$scope.settings.controls_visible) {
+				showControlTimer = $timeout(() => {
+					$scope.showControls = false;
+				}, 3000);
+			}
+		});
+/*
+		document.addEventListener('mouseout', () => {
+			$timeout.cancel(showControlTimer);
+
+			showControlTimer = $timeout(() => {
+				$scope.showControls = false;
+			}, 500);
+		});
+*/
+		document.addEventListener('keydown', (event) => {
+			console.log('key down', event.code);
+
+			switch (event.code) {
+				case 'ControlLeft': case 'ControlRight': {
+					ctrlKeyDown = true;
+					break;
+				}
+				case 'ShiftLeft': case 'ShiftRight': {
+					shiftKeyDown = true;
+					break;
+				}
+				case 'AltLeft': case 'AltRight': {
+					altKeyDown = true;
+					break;
+				}
+			}
+		});
+
+		document.addEventListener('keyup', (event) => {
+			console.log('key up', event.code);
+
+			switch (event.code) {
+				case 'ControlLeft': case 'ControlRight': {
+					ctrlKeyDown = false;
+					break;
+				}
+				case 'ShiftLeft': case 'ShiftRight': {
+					shiftKeyDown = false;
+					break;
+				}
+				case 'AltLeft': case 'AltRight': {
+					altKeyDown = false;
+					break;
+				}
+				case 'Space': {
+					$scope.togglePlayback();
+					break;
+				}
+				case 'ArrowLeft': {
+					$scope.jumpVideoTime('B');
+					break;
+				}
+				case 'ArrowRight': {
+					$scope.jumpVideoTime('F');
+					break;
+				}
+				case 'ArrowUp': {
+					incrementVolume('+');
+					break;
+				}
+				case 'ArrowDown': {
+					incrementVolume('-');
+					break;
+				}
+				case 'KeyM': {
+					$scope.toggleMute();
+					break;
+				}
+				case 'KeyO': {
+					if (ctrlKeyDown) {
+						ctrlKeyDown = false;
+
+						$scope.appendFile();
+					}
+
+					break;
+				}
+				case 'KeyF': case 'F11': {
+					$scope.toggleFullScreen();
+					break;
+				}
+				case 'BracketLeft': case 'NumpadSubtract': {
+					incrementSpeed('-');
+					break;
+				}
+				case 'BracketRight': case 'NumpadAdd': {
+					incrementSpeed('+');
+					break;
+				}
+				case 'Equal': {
+					setSpeed(1.0);
+					break;
+				}
+				case 'Escape': {
+					$scope.toggleFullScreen(false);
+					break;
+				}
+			}
 		});
 
 		setVolume($scope.currVolume);

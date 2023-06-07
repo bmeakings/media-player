@@ -1,17 +1,52 @@
 <div id="playerArea" ng-controller="PlayerCtrl">
+
+	<!-- video area -->
 	<div id="videoWrapper">
-		<div id="startupArea" ng-show="appStartup" ng-click="openFile()">
+
+		<!-- info message -->
+		<div id="infoMsgArea">{{ infoMessage }}</div>
+
+		<!-- welcome message -->
+		<div
+			id="startupArea"
+			class="messageArea"
+			ng-show="appStartup"
+			ng-click="openFile()"
+		>
 			<img src="./imgs/video.svg">
 			<img src="./imgs/music.svg">
-			<br />
+			<br>
 			<div>Click here to open an audio or video file, or drag and drop into this window</div>
 		</div>
-		<div id="statusIconArea" ng-show="statusIcon">
-			<img ng-if="statusIcon" ng-src="./imgs/{{ statusIcon }}.svg">
+
+		<!-- error message -->
+		<div class="messageArea" ng-show="errorMessage">
+			<img src="./imgs/error.svg">
+			<br>
+			<div>{{ errorMessage }}</div>
 		</div>
+
+		<!-- status icon -->
+		<div id="statusIconArea" ng-show="statusIcon">
+			<img ng-src="./imgs/{{ statusIcon }}.svg">
+		</div>
+
+		<!-- subtitles -->
+		<div
+			id="subtitlesArea"
+			ng-show="showSubtitles"
+			ng-style="{'bottom': ((showControls) ? 80 : 0) + 'px'}"
+			ng-bind-html="currSubtitle | trustedHTML"
+		></div>
+
+		<!-- video element -->
 		<video id="videoPlayer"></video>
 	</div>
+
+	<!-- controls -->
 	<div id="videoControls" ng-show="showControls">
+
+		<!-- seeker -->
 		<div id="seekerArea">
 			<div id="timePlayed">{{ playback.timePlayed }}</div>
 			<md-slider
@@ -26,6 +61,8 @@
 			<div id="timeTotal">{{ playback.timeTotal }}</div>
 			<div class="clearfix"></div>
 		</div>
+
+		<!-- buttons area -->
 		<div id="controlsArea" class="clearfix">
 
 			<!-- open file -->
@@ -45,7 +82,7 @@
 				aria-label="Add File"
 				ng-click="appendFile()"
 			>
-				<md-icon md-svg-src="./imgs/plus.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/playlist_add.svg"></md-icon>
 			</md-button>
 
 			<!-- view playlist -->
@@ -55,14 +92,14 @@
 				aria-label="View Playlist"
 				ng-click="viewPlaylist()"
 			>
-				<md-icon md-svg-src="./imgs/list.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/playlist_play.svg"></md-icon>
 			</md-button>
 
 			<!-- volume -->
 			<span
 				id="volumeArea"
 				class="sliderArea floatL"
-				title="{{ $parent.langStrings.volume }}: {{ volumePcnt }}%"
+				title="{{ $parent.langStrings.volume }}. {{ $parent.langStrings.click_to_mute }}"
 			>
 				<md-button
 					class="md-icon-button floatL"
@@ -80,29 +117,39 @@
 					aria-label="Volume"
 					ng-show="showVolSlider"
 					ng-model="volumeSlider.value"
-					ng-change="changeVolume()"
+					ng-change="volumeChanged()"
 					md-vertical
 				></md-slider>
 			</span>
 
+			<!-- subtitles -->
+			<md-button
+				class="md-icon-button floatL"
+				title="{{ $parent.langStrings.show_subtitles }}"
+				aria-label="Subtitles"
+				ng-click="toggleSubtitles()"
+			>
+				<md-icon md-svg-src="./imgs/{{ (showSubtitles) ? 'subtitles' : 'subtitles_off' }}.svg"></md-icon>
+			</md-button>
+
 			<!-- prev video -->
 			<md-button
 				class="md-icon-button"
-				title="{{ $parent.langStrings.prev_video }}"
+				title="{{ $parent.langStrings.prev_media }}"
 				aria-label="Previous"
 				ng-click="prevTrack()"
 			>
-				<md-icon md-svg-src="./imgs/skip-prev.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/skip_prev.svg"></md-icon>
 			</md-button>
 
-			<!-- slow down -->
+			<!-- jump back -->
 			<md-button
 				class="md-icon-button"
-				title="{{ $parent.langStrings.slow_down }}"
-				aria-label="Slow Down"
-				ng-click="videoSpeed('-')"
+				title="{{ $parent.langStrings.jump_back }} {{ settings.jump_time_amount }}s"
+				aria-label="Jump Back"
+				ng-click="jumpVideoTime('B')"
 			>
-				<md-icon md-svg-src="./imgs/speed-slow.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/fast_rewind.svg"></md-icon>
 			</md-button>
 
 			<!-- play / pause -->
@@ -115,34 +162,24 @@
 				<md-icon md-svg-src="./imgs/{{ (playback.playing) ? 'pause' : 'play' }}.svg"></md-icon>
 			</md-button>
 
-			<!-- speed up -->
+			<!-- jump forward -->
 			<md-button
 				class="md-icon-button"
-				title="{{ $parent.langStrings.speed_up }}"
-				aria-label="Speed Up"
-				ng-click="videoSpeed('+')"
+				title="{{ $parent.langStrings.jump_fwrd }} {{ settings.jump_time_amount }}s"
+				aria-label="Jump Forward"
+				ng-click="jumpVideoTime('F')"
 			>
-				<md-icon md-svg-src="./imgs/speed-fast.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/fast_forward.svg"></md-icon>
 			</md-button>
 
 			<!-- next video -->
 			<md-button
 				class="md-icon-button"
-				title="{{ $parent.langStrings.next_video }}"
+				title="{{ $parent.langStrings.next_media }}"
 				aria-label="Next"
 				ng-click="nextTrack()"
 			>
-				<md-icon md-svg-src="./imgs/skip-next.svg"></md-icon>
-			</md-button>
-
-			<!-- fullscreen -->
-			<md-button
-				class="md-icon-button floatR"
-				title="{{ $parent.langStrings.fullscreen }}"
-				aria-label="Fullscreen"
-				ng-click="toggleFullScreen()"
-			>
-				<md-icon md-svg-src="./imgs/enlarge.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/skip_next.svg"></md-icon>
 			</md-button>
 
 			<!-- settings -->
@@ -152,46 +189,68 @@
 				aria-label="Settings"
 				ng-click="$parent.openSettings()"
 			>
-				<md-icon md-svg-src="./imgs/cog.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/settings.svg"></md-icon>
+			</md-button>
+
+			<!-- info -->
+			<md-button
+				class="md-icon-button floatR"
+				title="{{ $parent.langStrings.info }}"
+				aria-label="Info"
+				ng-click="showInfo()"
+			>
+				<md-icon md-svg-src="./imgs/info.svg"></md-icon>
+			</md-button>
+
+			<!-- fullscreen -->
+			<md-button
+				class="md-icon-button floatR"
+				title="{{ $parent.langStrings.fullscreen }}"
+				aria-label="Fullscreen"
+				ng-click="toggleFullScreen()"
+			>
+				<md-icon md-svg-src="./imgs/fullscreen.svg"></md-icon>
 			</md-button>
 
 			<!-- loop -->
 			<md-button
 				class="md-icon-button floatR"
 				title="{{ $parent.langStrings.loop }}"
-				aria-label="Loop"
-				ng-click="loopVideo()"
+				aria-label="Repeat"
+				ng-click="repeatVideo()"
 			>
-				<md-icon md-svg-src="./imgs/loop.svg"></md-icon>
+				<md-icon md-svg-src="./imgs/{{ (playback.repeat) ? 'repeat_on' : 'repeat' }}.svg"></md-icon>
 			</md-button>
 
 			<!-- playback speed -->
 			<span
 				id="speedArea"
 				class="sliderArea floatR"
-				title="{{ $parent.langStrings.playback_speed }}"
+				title="{{ $parent.langStrings.play_speed }}. {{ $parent.langStrings.click_normal_speed }}"
 			>
 				<md-button
 					class="md-icon-button floatL"
 					aria-label="Speed"
+					ng-click="normalSpeed()"
 				>
-					<md-icon md-svg-src="./imgs/stopwatch.svg"></md-icon>
+					<md-icon md-svg-src="./imgs/speed.svg"></md-icon>
 				</md-button>
 				<md-slider
 					class="verticalSlider md-primary floatR"
-					min="0.0"
-					max="1.0"
+					min="0.1"
+					max="4.0"
 					step="0.1"
 					aria-label="Speed"
 					ng-show="showSpeedSlider"
 					ng-model="speedSlider.value"
-					ng-change="changeSpeed()"
+					ng-change="speedChanged()"
 					md-vertical
 				></md-slider>
 			</span>
 
 		</div>
 	</div>
+
 	<form id="openFileForm">
 		<input
 			id="openFile"
@@ -200,6 +259,6 @@
 			multiple="multiple"
 			on-file-change="loadFiles"
 			ng-model="openFiles"
-		/>
+		>
 	</form>
 </div>

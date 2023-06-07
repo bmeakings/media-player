@@ -14,11 +14,10 @@ function createAppWindow() {
 		minHeight: 240,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
-			nodeIntegration: true,
 		},
 	});
 
-	appWindow.loadFile('index.html');
+	appWindow.loadFile(path.join(__dirname, 'index.html'));
 	appWindow.webContents.openDevTools({mode: 'detach'});
 
 	appWindow.once('ready-to-show', () => {

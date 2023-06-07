@@ -12,6 +12,9 @@
 			'centre_on_play': (savedSettings.centre_on_play || false),
 			'exit_on_finish': (savedSettings.exit_on_finish || false),
 			'audio_visualiser': (savedSettings.audio_visualiser || false),
+			'controls_visible': (savedSettings.controls_visible || false),
+			'auto_show_subs': (savedSettings.auto_show_subs || false),
+			'jump_time_amount': (savedSettings.jump_time_amount || 5),
 		};
 
 		function getLanguages() {
@@ -32,12 +35,6 @@
 				})
 			);
 		}
-
-		$scope.langChanged = function() {
-			const newLang = $scope.settings.language;
-
-			$scope.$parent.setLanguage(newLang);
-		};
 
 		$scope.$watchCollection('settings', () => {
 			localStorage.setItem('settings', JSON.stringify($scope.settings));

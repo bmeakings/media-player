@@ -1,4 +1,4 @@
-<div ng-controller="SettingsCtrl">
+<div ng-controller="SettingsCtrl" layout="column" layout-fill>
 	<md-toolbar>
 		<div class="md-toolbar-tools">
 			<h2 flex md-trucate>{{ $parent.langStrings.settings }}</h2>
@@ -7,56 +7,43 @@
 			</md-button>
 		</div>
 	</md-toolbar>
-	<main id="settingsArea">
-		<md-content>
-			<md-card>
-				<md-card-content>
+	<md-content layout-fill>
+		<md-card id="settingsCard">
+			<md-card-content>
 
-					<!-- language -->
-					<div layout="row" flex="50" layout-align="space-between">
-						<span>{{ $parent.langStrings.language }}</span>
-						<md-select
-							class="md-no-underline"
-							ng-model="settings.language"
-							ng-change="langChanged()"
-							aria-label="Language"
-						>
-							<md-option ng-repeat="(key, val) in settings.langsMenu" value="{{ key }}">{{ val }}</md-option>
-						</md-select>
-					</div>
+				<div layout="row" layout-align="space-between">
+					<span>{{ $parent.langStrings.language }}</span>
+					<md-select
+						class="md-no-underline"
+						ng-model="settings.language"
+						aria-label="Language"
+					>
+						<md-option
+							ng-repeat="(key, val) in settings.langsMenu"
+							value="{{ key }}"
+						>{{ val }}</md-option>
+					</md-select>
+				</div>
 
-					<div layout="row">
-						<div layout="column" flex="50">
-							<!-- resize on play -->
-							<md-checkbox layout="row" ng-model="settings.resize_on_play">{{ $parent.langStrings.resize_on_play }}</md-checkbox>
+				<md-checkbox layout="row" ng-model="settings.resize_on_play">{{ $parent.langStrings.resize_on_play }}</md-checkbox>
+				<md-checkbox layout="row" ng-model="settings.exit_on_finish">{{ $parent.langStrings.exit_on_finish }}</md-checkbox>
+				<md-checkbox layout="row" ng-model="settings.centre_on_play">{{ $parent.langStrings.centre_on_play }}</md-checkbox>
+				<md-checkbox layout="row" ng-model="settings.audio_visualiser">{{ $parent.langStrings.audio_visualiser }}</md-checkbox>
+				<md-checkbox layout="row" ng-model="settings.controls_visible">{{ $parent.langStrings.controls_visible }}</md-checkbox>
+				<md-checkbox layout="row" ng-model="settings.auto_show_subs">{{ $parent.langStrings.auto_show_subs }}</md-checkbox>
 
-							<!-- exit on finish -->
-							<md-checkbox layout="row" ng-model="settings.exit_on_finish">{{ $parent.langStrings.exit_on_finish }}</md-checkbox>
+				<div layout="row" layout-align="space-between center">
+					<span>{{ $parent.langStrings.jump_time_amount }}</span>
+					<input
+						type="number"
+						min="1"
+						ng-model="settings.jump_time_amount"
+						aria-label="Jump Time"
+						style="width: 60px; text-align: center;"
+					>
+				</div>
 
-						</div>
-						<div layout="column" flex="50">
-							<!-- centre on play -->
-							<md-checkbox layout="row" ng-model="settings.centre_on_play">{{ $parent.langStrings.centre_on_play }}</md-checkbox>
-
-						</div>
-					</div>
-
-					<!-- track delay -->
-<!--
-					<div layout="row" layout-align="space-between center">
-						<span>{{ $parent.langStrings.track_delay }}</span>
-						<input
-							type="number"
-							min="0"
-							step="0.1"
-							ng-model="settings.track_delay"
-							aria-label="Delay"
-							style="width: 60px; text-align: center;"
-						/>
-					</div>
--->
-				</md-card-content>
-			</md-card>
-		</md-content>
-	</main>
+			</md-card-content>
+		</md-card>
+	</md-content>
 </div>
