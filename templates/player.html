@@ -41,6 +41,9 @@
 
 		<!-- video element -->
 		<video id="videoPlayer"></video>
+
+		<!-- audio visualiser -->
+		<canvas id="visualiserCvs"></canvas>
 	</div>
 
 	<!-- controls -->
@@ -212,16 +215,6 @@
 				<md-icon md-svg-src="./imgs/fullscreen.svg"></md-icon>
 			</md-button>
 
-			<!-- loop -->
-			<md-button
-				class="md-icon-button floatR"
-				title="{{ $parent.langStrings.loop }}"
-				aria-label="Repeat"
-				ng-click="repeatVideo()"
-			>
-				<md-icon md-svg-src="./imgs/{{ (playback.repeat) ? 'repeat_on' : 'repeat' }}.svg"></md-icon>
-			</md-button>
-
 			<!-- playback speed -->
 			<span
 				id="speedArea"
@@ -247,6 +240,16 @@
 					md-vertical
 				></md-slider>
 			</span>
+
+			<!-- loop -->
+			<md-button
+				class="md-icon-button floatR"
+				title="{{ $parent.langStrings.loop }}"
+				aria-label="Repeat"
+				ng-click="repeatVideo()"
+			>
+				<md-icon md-svg-src="./imgs/{{ (playback.repeat) ? 'repeat_on' : 'repeat' }}.svg"></md-icon>
+			</md-button>
 
 		</div>
 	</div>

@@ -81,6 +81,11 @@ main.flex {
 #videoPlayer {
 	width: 100%;
 }
+#visualiserCvs {
+	display: none;
+	background-color: #000;
+	z-index: 20;
+}
 #videoControls {
 	display: block;
 	position: absolute;

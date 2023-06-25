@@ -7,11 +7,12 @@
 		const videoObj = document.getElementById('videoPlayer');
 		const volumeArea = document.getElementById('volumeArea');
 		const speedArea = document.getElementById('speedArea');
+		const canvasEle = document.getElementById('visualiserCvs');
+		const canvasCtx = canvasEle.getContext('2d');
 
 		let ctrlKeyDown = false;
 		let shiftKeyDown = false;
 		let altKeyDown = false;
-		let mouseMoved = false;
 		let updateTimer = null;
 		let seekerDelay = null;
 		// let playOpenedFile = true;
@@ -26,6 +27,17 @@
 		let currFileName = '';
 		let appendPlaylist = false;
 		let currSubsData = [];
+
+		// audio analyser
+		let audioAnl = null;
+		let analyserBufr = null;
+		let analyserData = null;
+		let analyserBarW = 0;
+		let analyserBarH = 0;
+		let analyserBarX = 0;
+		let analyserW = 0;
+		let analyserH = 0;
+		let analyserLoaded = false;
 
 		$scope.settings = {};
 		$scope.showControls = true;
@@ -78,6 +90,10 @@
 
 		function playMedia(index) {
 			const file = $scope.playlist[index];
+
+			if (!file)
+				return;
+
 			const fileName = file.name;
 			const filePath = 'file://' + file.path.replaceAll('\\', '/');
 			const fileType = file.type;
@@ -91,8 +107,51 @@
 
 			setPlaybackStatus(true);
 			updatePlaybackInfo();
-			// spectrumAnalyser();
 			$scope.togglePlayback(true);
+		}
+
+		function spectrumAnalyser() {
+			console.log('spectrumAnalyser');
+
+			const audioCtx = new AudioContext();
+			const vidStream = videoObj.captureStream();
+			const audioSrc = audioCtx.createMediaStreamSource(vidStream);
+
+			audioAnl = audioCtx.createAnalyser();
+			audioAnl.fftSize = 128;
+
+			audioAnl.connect(audioCtx.destination);
+			audioSrc.connect(audioAnl);
+
+			analyserBufr = audioAnl.frequencyBinCount;
+			analyserData = new Uint8Array(analyserBufr);
+			analyserBarW = (Math.floor(analyserW / analyserBufr) * 2) - 3;
+			analyserLoaded = true;
+
+			canvasCtx.clearRect(0, 0, analyserW, analyserH);
+			requestAnimationFrame(analyserRender);
+		}
+
+		function analyserRender() {
+			console.log('analyserRender');
+
+			audioAnl.getByteFrequencyData(analyserData);
+
+			analyserBarX = 1;
+			canvasCtx.fillStyle = '#000';
+			canvasCtx.fillRect(0, 0, analyserW, analyserH);
+
+			for (let i = 0; i < analyserBufr; i++) {
+				analyserBarH = analyserData[i];
+
+				canvasCtx.fillStyle = '#fff';
+				canvasCtx.fillRect(analyserBarX, analyserH - analyserBarH, analyserBarW, analyserBarH);
+
+				analyserBarX += analyserBarW + 1;
+			}
+
+			if ($scope.playback.playing)
+				requestAnimationFrame(analyserRender);
 		}
 
 		function getSubtitles() {
@@ -418,8 +477,13 @@
 					.then(() => {
 						$timeout(() => {
 							if (currFileType.includes('audio/')) {
-								if (!$scope.settings.audio_visualiser)
+								if ($scope.settings.audio_visualiser) {
+									if (analyserLoaded)
+										requestAnimationFrame(analyserRender);
+								}
+								else {
 									showStatusIcon('music', true);
+								}
 							}
 							else {
 								showStatusIcon('play');
@@ -454,6 +518,7 @@
 		$scope.stopPlayback = () => {
 			videoObj.pause();
 			videoObj.currentTime = 0;
+			// analyserLoaded = false;
 
 			showStatusIcon('stop');
 			updatePlaybackInfo();
@@ -601,7 +666,33 @@
 			if ($scope.settings.centre_on_play)
 				window.electronAPI.centreWindow();
 
-			getSubtitles();
+			if (currFileType.includes('audio/')) {
+				if ($scope.settings.audio_visualiser) {
+					if ($scope.settings.resize_on_play) {
+						analyserW = vidWidth;
+						analyserH = vidHeight;
+					}
+					else {
+						analyserW = document.body.clientWidth;
+						analyserH = document.body.clientHeight;
+						// todo: resize analyser if window is resized
+					}
+
+					videoObj.style.display = 'none';
+					canvasEle.style.display = 'block';
+					canvasEle.width = analyserW;
+					canvasEle.height = analyserH;
+
+					// if (!analyserLoaded)
+						spectrumAnalyser();
+				}
+			}
+			else {
+				canvasEle.style.display = 'none';
+				videoObj.style.display = 'block';
+
+				getSubtitles();
+			}
 		});
 
 		videoObj.addEventListener('ended', () => {
@@ -748,6 +839,18 @@
 				}
 			}
 		});
+
+		window.addEventListener('resize', (event) => {
+			const win = event.target;
+
+			analyserW = win.innerWidth;
+			analyserH = win.innerHeight;
+			canvasEle.width = analyserW;
+			canvasEle.height = analyserH;
+		});
+
+		console.log('window');
+		console.log(window);
 
 		setVolume($scope.currVolume);
 	})
