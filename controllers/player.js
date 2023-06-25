@@ -128,7 +128,7 @@
 			analyserBarW = (Math.floor(analyserW / analyserBufr) * 2) - 3;
 			analyserLoaded = true;
 
-			canvasCtx.clearRect(0, 0, analyserW, analyserH);
+			// canvasCtx.clearRect(0, 0, analyserW, analyserH);
 			requestAnimationFrame(analyserRender);
 		}
 
