@@ -1,7 +1,7 @@
 <div id="playerArea" ng-controller="PlayerCtrl">
 
 	<!-- video area -->
-	<div id="videoWrapper">
+	<div id="videoWrapper" ng-style="{'background-image': 'url(' + albumArtImg + ')'}">
 
 		<!-- info message -->
 		<div id="infoMsgArea">{{ infoMessage }}</div>
@@ -42,8 +42,12 @@
 		<!-- video element -->
 		<video id="videoPlayer"></video>
 
+		<!-- audio info -->
+		<div id="audioInfoArea"></div>
+
 		<!-- audio visualiser -->
 		<canvas id="visualiserCvs"></canvas>
+
 	</div>
 
 	<!-- controls -->

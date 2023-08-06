@@ -43,6 +43,9 @@ main.flex {
 	top: 0px;
 	bottom: 0px;
 	width: 100%;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
 }
 .messageArea {
 	position: absolute;
@@ -83,8 +86,8 @@ main.flex {
 }
 #visualiserCvs {
 	display: none;
-	background-color: #000;
 	z-index: 20;
+	filter: opacity(0.5);
 }
 #videoControls {
 	display: block;
@@ -173,6 +176,9 @@ main.flex {
 }
 #volumeMeter > div {
 	background-color: #333;
+}
+#settingsContent {
+	min-height: initial;
 }
 #settingsCard {
 	width: 400px;

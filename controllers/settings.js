@@ -15,6 +15,11 @@
 			'controls_visible': (savedSettings.controls_visible || false),
 			'auto_show_subs': (savedSettings.auto_show_subs || false),
 			'jump_time_amount': (savedSettings.jump_time_amount || 5),
+			'get_album_art': (savedSettings.get_album_art || false),
+		};
+
+		$scope.isBoolean = (val) => {
+			return (typeof val == 'boolean');
 		};
 
 		function getLanguages() {

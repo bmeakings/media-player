@@ -7,7 +7,7 @@
 			</md-button>
 		</div>
 	</md-toolbar>
-	<md-content layout-fill>
+	<md-content id="settingsContent" layout-fill>
 		<md-card id="settingsCard">
 			<md-card-content>
 
@@ -25,13 +25,6 @@
 					</md-select>
 				</div>
 
-				<md-checkbox layout="row" ng-model="settings.resize_on_play">{{ $parent.langStrings.resize_on_play }}</md-checkbox>
-				<md-checkbox layout="row" ng-model="settings.exit_on_finish">{{ $parent.langStrings.exit_on_finish }}</md-checkbox>
-				<md-checkbox layout="row" ng-model="settings.centre_on_play">{{ $parent.langStrings.centre_on_play }}</md-checkbox>
-				<md-checkbox layout="row" ng-model="settings.audio_visualiser">{{ $parent.langStrings.audio_visualiser }}</md-checkbox>
-				<md-checkbox layout="row" ng-model="settings.controls_visible">{{ $parent.langStrings.controls_visible }}</md-checkbox>
-				<md-checkbox layout="row" ng-model="settings.auto_show_subs">{{ $parent.langStrings.auto_show_subs }}</md-checkbox>
-
 				<div layout="row" layout-align="space-between center">
 					<span>{{ $parent.langStrings.jump_time_amount }}</span>
 					<input
@@ -42,6 +35,12 @@
 						style="width: 60px; text-align: center;"
 					>
 				</div>
+
+				<md-checkbox
+					ng-repeat="(key, val) in settings"
+					ng-if="isBoolean(val)"
+					ng-model="settings[key]"
+				>{{ $parent.langStrings[key] }}</md-checkbox>
 
 			</md-card-content>
 		</md-card>

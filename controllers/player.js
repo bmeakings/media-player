@@ -4,11 +4,13 @@
 	.module(appName)
 	.controller('PlayerCtrl', ($scope, $timeout) => {
 		const savedVolume = localStorage.getItem('volume');
+		const videoArea = document.getElementById('videoWrapper');
 		const videoObj = document.getElementById('videoPlayer');
 		const volumeArea = document.getElementById('volumeArea');
 		const speedArea = document.getElementById('speedArea');
 		const canvasEle = document.getElementById('visualiserCvs');
 		const canvasCtx = canvasEle.getContext('2d');
+		const audioCtx = new AudioContext();
 
 		let ctrlKeyDown = false;
 		let shiftKeyDown = false;
@@ -59,6 +61,7 @@
 		$scope.infoMessage = '';
 		$scope.currSubtitle = '';
 		$scope.showSubtitles = false;
+		$scope.albumArtImg = '';
 
 		$scope.playback = {
 			'title': '',
@@ -99,21 +102,92 @@
 			const fileType = file.type;
 
 			$scope.currPlayIdx = index;
+			$scope.albumArtImg = '';
 
 			currFileType = fileType;
 			currFilePath = filePath;
 			currFileName = fileName;
 			videoObj.src = filePath;
 
+			if (fileType.includes('audio/') && $scope.settings.get_album_art) {
+				const req = new XMLHttpRequest();
+					req.open('GET', file.path, true);
+					req.responseType = 'arraybuffer';
+
+				req.onload = () => {
+					let metadata = {};
+
+					switch (fileType) {
+						case 'audio/mp3': {
+							metadata = AudioMetadata.id3v2(req.response);
+							break;
+						}
+						case 'audio/ogg': {
+							metadata = AudioMetadata.ogg(req.response);
+							break;
+						}
+						default: {
+							metadata = null;
+							break;
+						}
+					}
+
+					if (metadata)
+						getAlbumArt(metadata, fileName);
+				};
+
+				req.send(null);
+			}
+
 			setPlaybackStatus(true);
 			updatePlaybackInfo();
+			// getAlbumArt(fileName);
 			$scope.togglePlayback(true);
+		}
+
+		function getAlbumArt(data, fileName) {
+			let artistName = data?.artist;
+			let albumTitle = data?.title;
+
+			console.log('getAlbumArt');
+			console.log(data);
+
+			if (!artistName && fileName.includes(' - ')) {
+				const fileArr = fileName.split(' - ');
+
+				artistName = fileArr[0];
+				albumTitle = fileArr[1];
+
+				if (artistName.includes(' feat. '))
+					artistName = artistName.substring(0, artistName.indexOf(' feat. '))
+
+				if (artistName.includes(' ft. '))
+					artistName = artistName.substring(0, artistName.indexOf(' ft. '))
+
+				if (artistName.includes(' pres. '))
+					artistName = artistName.substring(0, artistName.indexOf(' pres. '))
+
+				if (artistName.includes(' with '))
+					artistName = artistName.substring(0, artistName.indexOf(' with '))
+
+				albumTitle = albumTitle.substring(0, albumTitle.lastIndexOf('.'));
+			}
+
+			console.log('artist:', artistName);
+			console.log('album:', albumTitle);
+
+			albumArt(artistName, {album: albumTitle}, (err, res) => {
+				console.log(err);
+				console.log(res);
+
+				if (res)
+					$scope.albumArtImg = res;
+			});
 		}
 
 		function spectrumAnalyser() {
 			console.log('spectrumAnalyser');
 
-			const audioCtx = new AudioContext();
 			const vidStream = videoObj.captureStream();
 			const audioSrc = audioCtx.createMediaStreamSource(vidStream);
 
@@ -128,18 +202,16 @@
 			analyserBarW = (Math.floor(analyserW / analyserBufr) * 2) - 3;
 			analyserLoaded = true;
 
-			// canvasCtx.clearRect(0, 0, analyserW, analyserH);
 			requestAnimationFrame(analyserRender);
 		}
 
 		function analyserRender() {
-			console.log('analyserRender');
+			// console.log('analyserRender');
 
 			audioAnl.getByteFrequencyData(analyserData);
 
 			analyserBarX = 1;
-			canvasCtx.fillStyle = '#000';
-			canvasCtx.fillRect(0, 0, analyserW, analyserH);
+			canvasCtx.clearRect(0, 0, analyserW, analyserH);
 
 			for (let i = 0; i < analyserBufr; i++) {
 				analyserBarH = analyserData[i];
@@ -646,12 +718,12 @@
 				incrementSpeed('+');
 		});
 
-		document.getElementById('videoWrapper').addEventListener('click', () => {
+		videoArea.addEventListener('click', () => {
 			if ($scope.playlist.length > 0)
 				$scope.togglePlayback();
 		});
 
-		document.getElementById('videoWrapper').addEventListener('dblclick', () => {
+		videoArea.addEventListener('dblclick', () => {
 			$scope.toggleFullScreen();
 		});
 
