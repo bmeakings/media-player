@@ -10,6 +10,12 @@ body {
 body > div {
 	height: 100%;
 }
+main.flex {
+	overflow-y: auto;
+}
+md-checkbox .md-label {
+	margin-top: 12px;
+}
 md-slider .md-thumb:after {
 	background-color: #fff !important;
 }
@@ -24,9 +30,6 @@ md-slider .md-thumb:after {
 }
 .md-errors-spacer {
 	display: none;
-}
-main.flex {
-	overflow-y: auto;
 }
 
 .clearfix { clear: both; }
@@ -184,4 +187,13 @@ main.flex {
 	width: 400px;
 	margin-left: auto;
 	margin-right: auto;
+}
+#settingsCard > md-card-content > md-checkbox {
+	width: 100%;
+}
+#settingsCard > md-card-content > div.layout-row {
+	padding: 8px 3px 15px 0px;
+}
+#settingsCard > md-card-content > div.layout-row > md-select {
+	height: 25px;
 }
