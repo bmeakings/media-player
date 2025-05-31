@@ -6,7 +6,7 @@
 		const savedVolume = localStorage.getItem('volume');
 		const videoArea = document.getElementById('videoWrapper');
 		const videoObj = document.getElementById('videoPlayer');
-		const audioObj = document.getElementById('audioPlayer');
+		// const audioObj = document.getElementById('audioPlayer');
 		const volumeArea = document.getElementById('volumeArea');
 		const speedArea = document.getElementById('speedArea');
 		const canvasEle = document.getElementById('visualiserCvs');
