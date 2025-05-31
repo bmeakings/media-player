@@ -23,6 +23,7 @@
 	"startup_msg": "Click here to open an audio or video file, or drag and drop into this window",
 	"resize_on_play": "Resize window to video resolution on play",
 	"centre_on_play": "Centre window on play",
+	"fullscreen_on_play": "Fullscreen on play",
 	"exit_on_finish": "Exit when video has finished",
 	"audio_visualiser": "Show visualiser for audio",
 	"controls_visible": "Always show controls",

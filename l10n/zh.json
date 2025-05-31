@@ -23,6 +23,7 @@
 	"startup_msg": "单击此处打开音频或视频文件，或拖放到此窗口中",
 	"resize_on_play": "在播放时根据视频分辨率调整窗口大小",
 	"centre_on_play": "播放时居中窗口",
+	"fullscreen_on_play": "开始播放时全屏",
 	"exit_on_finish": "视频结束后退出",
 	"audio_visualiser": "显示音频可视化工具",
 	"controls_visible": "始终显示控件",

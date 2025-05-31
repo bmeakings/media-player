@@ -6,11 +6,13 @@
 		const savedVolume = localStorage.getItem('volume');
 		const videoArea = document.getElementById('videoWrapper');
 		const videoObj = document.getElementById('videoPlayer');
+		const audioObj = document.getElementById('audioPlayer');
 		const volumeArea = document.getElementById('volumeArea');
 		const speedArea = document.getElementById('speedArea');
 		const canvasEle = document.getElementById('visualiserCvs');
 		const canvasCtx = canvasEle.getContext('2d');
 		const audioCtx = new AudioContext();
+		const audioAnl = audioCtx.createAnalyser();
 
 		let ctrlKeyDown = false;
 		let shiftKeyDown = false;
@@ -31,7 +33,6 @@
 		let currSubsData = [];
 
 		// audio analyser
-		let audioAnl = null;
 		let analyserBufr = null;
 		let analyserData = null;
 		let analyserBarW = 0;
@@ -39,7 +40,7 @@
 		let analyserBarX = 0;
 		let analyserW = 0;
 		let analyserH = 0;
-		let analyserLoaded = false;
+		// let analyserLoaded = false;
 
 		$scope.settings = {};
 		$scope.showControls = true;
@@ -98,7 +99,7 @@
 				return;
 
 			const fileName = file.name;
-			const filePath = 'file://' + file.path.replaceAll('\\', '/');
+			const filePath = 'file://' + electronAPI.getFilePath(file).replaceAll('\\', '/');
 			const fileType = file.type;
 
 			$scope.currPlayIdx = index;
@@ -111,7 +112,7 @@
 
 			if (fileType.includes('audio/') && $scope.settings.get_album_art) {
 				const req = new XMLHttpRequest();
-					req.open('GET', file.path, true);
+					req.open('GET', electronAPI.getFilePath(file), true);
 					req.responseType = 'arraybuffer';
 
 				req.onload = () => {
@@ -177,8 +178,8 @@
 			console.log('album:', albumTitle);
 
 			albumArt(artistName, {album: albumTitle}, (err, res) => {
-				console.log(err);
-				console.log(res);
+				// console.log(err);
+				// console.log(res);
 
 				if (res)
 					$scope.albumArtImg = res;
@@ -186,28 +187,16 @@
 		}
 
 		function spectrumAnalyser() {
-			console.log('spectrumAnalyser');
-
-			const vidStream = videoObj.captureStream();
-			const audioSrc = audioCtx.createMediaStreamSource(vidStream);
-
-			audioAnl = audioCtx.createAnalyser();
-			audioAnl.fftSize = 128;
-
-			audioAnl.connect(audioCtx.destination);
-			audioSrc.connect(audioAnl);
-
 			analyserBufr = audioAnl.frequencyBinCount;
 			analyserData = new Uint8Array(analyserBufr);
 			analyserBarW = (Math.floor(analyserW / analyserBufr) * 2) - 3;
-			analyserLoaded = true;
+			// analyserLoaded = true;
 
-			requestAnimationFrame(analyserRender);
+			analyserRender();
 		}
 
 		function analyserRender() {
-			// console.log('analyserRender');
-
+			requestAnimationFrame(analyserRender);
 			audioAnl.getByteFrequencyData(analyserData);
 
 			analyserBarX = 1;
@@ -222,8 +211,7 @@
 				analyserBarX += analyserBarW + 1;
 			}
 
-			if ($scope.playback.playing)
-				requestAnimationFrame(analyserRender);
+			// if ($scope.playback.playing)
 		}
 
 		function getSubtitles() {
@@ -517,7 +505,7 @@
 				$scope.stopPlayback();
 			}
 
-			document.getElementById('openFile').click();
+			document.querySelector('#openFileField').click();
 		};
 
 		$scope.appendFile = () => {
@@ -527,7 +515,7 @@
 		};
 
 		$scope.loadFiles = (files) => {
-			console.log('openFiles');
+			console.log('loadFiles');
 			console.log(files);
 
 			if (appendPlaylist)
@@ -550,8 +538,8 @@
 						$timeout(() => {
 							if (currFileType.includes('audio/')) {
 								if ($scope.settings.audio_visualiser) {
-									if (analyserLoaded)
-										requestAnimationFrame(analyserRender);
+									// if (analyserLoaded)
+									// 	requestAnimationFrame(analyserRender);
 								}
 								else {
 									showStatusIcon('music', true);
@@ -738,8 +726,14 @@
 			if ($scope.settings.centre_on_play)
 				window.electronAPI.centreWindow();
 
+			if ($scope.settings.fullscreen_on_play)
+				window.electronAPI.setFullScreen(true);
+
 			if (currFileType.includes('audio/')) {
 				if ($scope.settings.audio_visualiser) {
+					const vidStream = videoObj.captureStream();
+					const audioSrc = audioCtx.createMediaStreamSource(vidStream);
+
 					if ($scope.settings.resize_on_play) {
 						analyserW = vidWidth;
 						analyserH = vidHeight;
@@ -754,6 +748,9 @@
 					canvasEle.style.display = 'block';
 					canvasEle.width = analyserW;
 					canvasEle.height = analyserH;
+
+					audioAnl.connect(audioCtx.destination);
+					audioSrc.connect(audioAnl);
 
 					// if (!analyserLoaded)
 						spectrumAnalyser();
@@ -924,6 +921,7 @@
 		console.log('window');
 		console.log(window);
 
+		audioAnl.fftSize = 128;
 		setVolume($scope.currVolume);
 	})
 );

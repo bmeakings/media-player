@@ -10,6 +10,7 @@
 			'langsMenu': {},
 			'resize_on_play': (savedSettings.resize_on_play || false),
 			'centre_on_play': (savedSettings.centre_on_play || false),
+			'fullscreen_on_play': (savedSettings.fullscreen_on_play || false),
 			'exit_on_finish': (savedSettings.exit_on_finish || false),
 			'audio_visualiser': (savedSettings.audio_visualiser || false),
 			'controls_visible': (savedSettings.controls_visible || false),

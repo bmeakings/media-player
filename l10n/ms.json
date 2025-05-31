@@ -23,6 +23,7 @@
 	"startup_msg": "Klik di sini untuk membuka fail audio atau video, atau seret dan lepas ke dalam tetingkap ini",
 	"resize_on_play": "Ubah saiz tetingkap kepada peleraian video semasa dimainkan",
 	"centre_on_play": "Tetingkap tengah bermain",
+	"fullscreen_on_play": "Skrin penuh apabila memulakan main balik",
 	"exit_on_finish": "Keluar apabila video telah selesai",
 	"audio_visualiser": "Tunjukkan visualizer untuk audio",
 	"controls_visible": "Sentiasa tunjukkan kawalan",

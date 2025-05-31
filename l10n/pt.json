@@ -23,6 +23,7 @@
 	"startup_msg": "Clique aqui para abrir um arquivo de áudio ou vídeo ou arraste e solte nesta janela",
 	"resize_on_play": "Redimensionar a janela para resolução de vídeo durante a reprodução",
 	"centre_on_play": "Janela central durante o jogo",
+	"fullscreen_on_play": "Ecrã completo ao iniciar a reprodução",
 	"exit_on_finish": "Sair quando o vídeo terminar",
 	"audio_visualiser": "Mostrar visualizador de áudio",
 	"controls_visible": "Sempre mostrar controles",

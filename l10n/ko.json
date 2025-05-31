@@ -23,6 +23,7 @@
 	"startup_msg": "오디오 또는 비디오 파일을 열려면 여기를 클릭하거나 이 창으로 끌어서 놓으십시오",
 	"resize_on_play": "재생 시 비디오 해상도에 맞게 창 크기 조정",
 	"centre_on_play": "재생 시 중앙 창",
+	"fullscreen_on_play": "재생을 시작할 때 전체 화면으로 전환",
 	"exit_on_finish": "영상이 끝나면 종료",
 	"audio_visualiser": "오디오 시각화 도구 표시",
 	"controls_visible": "항상 컨트롤 표시",

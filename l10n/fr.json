@@ -23,6 +23,7 @@
 	"startup_msg": "Cliquez ici pour ouvrir un fichier audio ou vidéo, ou faites un glisser-déposer dans cette fenêtre",
 	"resize_on_play": "Redimensionner la fenêtre à la résolution vidéo lors de la lecture",
 	"centre_on_play": "Fenêtre centrale en lecture",
+	"fullscreen_on_play": "Plein écran au démarrage de la lecture",
 	"exit_on_finish": "Quitter lorsque la vidéo est terminée",
 	"audio_visualiser": "Afficher le visualiseur pour l'audio",
 	"controls_visible": "Toujours afficher les contrôles",

@@ -1,8 +1,11 @@
 'use strict';
 
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+	getFilePath(file) {
+		return webUtils.getPathForFile(file);
+	},
 	windowTitle(title) {
 		ipcRenderer.send('window-title', title);
 	},
